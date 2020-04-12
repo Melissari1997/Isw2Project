@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import com.opencsv.CSVWriter;
 public class RetrieveTicketsID {
 
 
-	private static TreeMap<String,Integer> mapDate = new TreeMap<String,Integer>();
+	private static TreeMap<String,Integer> mapDate = new TreeMap<>();
 
     private static String readAll(Reader rd) throws IOException {
 		      StringBuilder sb = new StringBuilder();
@@ -58,7 +57,7 @@ public class RetrieveTicketsID {
    }
    
    
-   public static List<String> GetTicketID(String projName) throws IOException, JSONException{
+   public static List<String> getTicketID(String projName) throws IOException, JSONException{
 	 
 	   Integer j = 0;
 	   Integer i = 0; 
@@ -91,7 +90,7 @@ public class RetrieveTicketsID {
 	   String organization = "apache";
 	   Integer i = 0;
 	   Integer page = 1;
-	   Integer per_page = 100;
+	   Integer perPage = 100;
 	   Logger logger = Logger.getLogger(RetrieveTicketsID.class.getName());
 	   int threshold = 7;   
 	   CSVWriter csvWriter = new CSVWriter(new FileWriter(projName + "BugChart.csv"),';',
@@ -99,10 +98,10 @@ public class RetrieveTicketsID {
                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                CSVWriter.DEFAULT_LINE_END);
 
-	   List<String> ticketsID = GetTicketID(projName);
+	   List<String> ticketsID = getTicketID(projName);
 
       do {
-    	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + per_page.toString()).toString();	
+    	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
     	  JSONArray jsonArray = new JSONArray(res);
    	      int total = jsonArray.length();
 
@@ -122,11 +121,11 @@ public class RetrieveTicketsID {
 			  int end = -1;
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
               if (commitMessage.toLowerCase().contains("[" + projName.toLowerCase()+ "-")) {
-        		  end = commitMessage.indexOf("]"); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
+        		  end = commitMessage.indexOf(']'); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
               }
               else {
             	  if(commitMessage.toLowerCase().contains(projName.toLowerCase()+ "-") && commitMessage.contains(":")) {
-            		  end = commitMessage.indexOf(":");
+            		  end = commitMessage.indexOf(':');
             	  }
               }
               if (start != -1 && end != -1 && start<end) {
@@ -155,7 +154,8 @@ public class RetrieveTicketsID {
     	  page++;
       } while (true);
       mapDate.entrySet().forEach(entry->{
-    	    logger.log(Level.INFO, "Data: " + entry.getKey() + " ---> Numero: " + entry.getValue());  
+    	    logger.log(Level.INFO,  "Data: {0}",entry.getKey());  
+    	    logger.log(Level.INFO,  "Numero: {0}",entry.getValue());  
     	    csvWriter.writeNext(new String[]{entry.getKey() , String.valueOf(entry.getValue())});
       });
       csvWriter.close();
