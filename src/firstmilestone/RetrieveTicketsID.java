@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,6 +84,36 @@ public class RetrieveTicketsID {
       return ticketList;
    }
    
+   public static int stopChar(String commitMessage, String projName) {
+	   int end = -1;
+	   if (commitMessage.toLowerCase().contains("[" + projName.toLowerCase()+ "-")) {
+ 		  end = commitMessage.indexOf(']'); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
+       }
+       else {
+     	  if(commitMessage.toLowerCase().contains(projName.toLowerCase()+ "-") && commitMessage.contains(":")) {
+     		  end = commitMessage.indexOf(':');
+     	  }
+       }
+	   return end;
+   }
+   
+   /*
+    * Se il commit di Github esiste nella lista dei commit di Jiira, ritorna il Anno/Mese in cui ne è stato fatto il commit
+    * 
+    */
+   public static String checkEsistence(List<String> ticketsID, String ticketMessage, String date) throws ParseException {
+	   if(ticketsID.contains(ticketMessage)) {
+		   Date data = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date); 
+           Calendar cal = Calendar.getInstance();
+           cal.setTime(data);
+           Integer month= cal.get(Calendar.MONTH) +1;
+           Integer year = cal.get(Calendar.YEAR);
+		   return String.valueOf(year) + "/" + String.format("%02d",month);
+			  
+	  }else {
+		  return null;
+	  }
+   }
 
   	   public static void main(String[] args) throws Exception {
 		   
@@ -116,10 +147,12 @@ public class RetrieveTicketsID {
 			  if(commitMessage.length() < projName.length()+ threshold) {
 				 break;
 			  }
+			  
 			  String ticketMessage = null;
 			  int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
-			  int end = -1;
+			  int end = stopChar(commitMessage,projName);
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
+			  /*
               if (commitMessage.toLowerCase().contains("[" + projName.toLowerCase()+ "-")) {
         		  end = commitMessage.indexOf(']'); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
               }
@@ -127,28 +160,29 @@ public class RetrieveTicketsID {
             	  if(commitMessage.toLowerCase().contains(projName.toLowerCase()+ "-") && commitMessage.contains(":")) {
             		  end = commitMessage.indexOf(':');
             	  }
-              }
+              }*/
               if (start != -1 && end != -1 && start<end) {
             	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
-    			  
-    			  if(ticketsID.contains(ticketMessage)) {
+    			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
+    			  		/*
     				  	Date data = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date); 
 			            Calendar cal = Calendar.getInstance();
 			            cal.setTime(data);
 			            Integer month= cal.get(Calendar.MONTH) +1;
 			            Integer year = cal.get(Calendar.YEAR);
 						date = String.valueOf(year) + "/" + String.format("%02d",month);
-						logger.log(Level.INFO, ticketMessage);
-	    			    logger.log(Level.INFO, date);
-	    			    logger.log(Level.INFO, "---------------");
-						if(mapDate.containsKey(date)) {		            	
-			            	mapDate.put(date, mapDate.get(date)+1);
-			            }
-			            else {
-			            	mapDate.put(date, 1);
-			            }	  
-    			  }
+						*/
+				  logger.log(Level.INFO, ticketMessage);
+				  logger.log(Level.INFO, formattedDate);
+				  logger.log(Level.INFO, "---------------");
+				  if(formattedDate != null && mapDate.containsKey(formattedDate)) {		            	
+	            	mapDate.put(formattedDate, mapDate.get(formattedDate)+1);
+	              }
+	              else if(formattedDate != null) {
+	            	mapDate.put(formattedDate, 1);
+	              }	  
+    			  
     		  }  
            } 
     	  page++;
