@@ -165,6 +165,9 @@ public class RetrieveTicketsID {
             	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
+    			  if (formattedDate != null) {
+    				  break;
+    			  }
     			  		/*
     				  	Date data = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date); 
 			            Calendar cal = Calendar.getInstance();
@@ -176,10 +179,10 @@ public class RetrieveTicketsID {
 				  logger.log(Level.INFO, ticketMessage);
 				  logger.log(Level.INFO, formattedDate);
 				  logger.log(Level.INFO, "---------------");
-				  if(formattedDate != null && mapDate.containsKey(formattedDate)) {		            	
+				  if(mapDate.containsKey(formattedDate)) {		            	
 	            	mapDate.put(formattedDate, mapDate.get(formattedDate)+1);
 	              }
-	              else if(formattedDate != null) {
+	              else {
 	            	mapDate.put(formattedDate, 1);
 	              }	  
     			  
