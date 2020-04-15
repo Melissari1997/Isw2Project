@@ -130,20 +130,18 @@ public class RetrieveTicketsID {
                CSVWriter.DEFAULT_LINE_END);
 
 	   List<String> ticketsID = getTicketID(projName);
+	   int total = 0;
 
       do {
     	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
     	  JSONArray jsonArray = new JSONArray(res);
-   	      int total = jsonArray.length();
-
-   	      if (total == 0 ) {
-   	    	  break;
-   	      }
-   	      
-   	      
+    	  page++;
+   	      total = jsonArray.length();
+   	   
     	  for (i = 0;  i<total; i++) {
     		  JSONObject key = jsonArray.getJSONObject(i%1000);
 			  String commitMessage = key.getJSONObject("commit").get("message").toString();
+			  //farlo con un metodo
 			  if(commitMessage.length() < projName.length()+ threshold) {
 				 break;
 			  }
@@ -152,44 +150,24 @@ public class RetrieveTicketsID {
 			  int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
 			  int end = stopChar(commitMessage,projName);
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
-			  /*
-              if (commitMessage.toLowerCase().contains("[" + projName.toLowerCase()+ "-")) {
-        		  end = commitMessage.indexOf(']'); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
-              }
-              else {
-            	  if(commitMessage.toLowerCase().contains(projName.toLowerCase()+ "-") && commitMessage.contains(":")) {
-            		  end = commitMessage.indexOf(':');
-            	  }
-              }*/
+			  
               if (start != -1 && end != -1 && start<end) {
             	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
-    			  if (formattedDate != null) {
-    				  break;
-    			  }
-    			  		/*
-    				  	Date data = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date); 
-			            Calendar cal = Calendar.getInstance();
-			            cal.setTime(data);
-			            Integer month= cal.get(Calendar.MONTH) +1;
-			            Integer year = cal.get(Calendar.YEAR);
-						date = String.valueOf(year) + "/" + String.format("%02d",month);
-						*/
 				  logger.log(Level.INFO, ticketMessage);
 				  logger.log(Level.INFO, formattedDate);
 				  logger.log(Level.INFO, "---------------");
-				  if(mapDate.containsKey(formattedDate)) {		            	
+				  if(formattedDate != null && mapDate.containsKey(formattedDate)) {		            	
 	            	mapDate.put(formattedDate, mapDate.get(formattedDate)+1);
 	              }
-	              else {
+	              else if (formattedDate != null) {
 	            	mapDate.put(formattedDate, 1);
 	              }	  
     			  
     		  }  
            } 
-    	  page++;
-      } while (true);
+      } while (total >0);
       mapDate.entrySet().forEach(entry->{
     	    logger.log(Level.INFO,  "Data: {0}",entry.getKey());  
     	    logger.log(Level.INFO,  "Numero: {0}",entry.getValue());  
