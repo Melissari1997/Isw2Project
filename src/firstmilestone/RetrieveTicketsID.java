@@ -151,7 +151,7 @@ public class RetrieveTicketsID {
 			  int end = stopChar(commitMessage,projName);
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
 			  
-              if (start != -1 && end != -1 && start<end) {
+              if (start<end) {
             	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
