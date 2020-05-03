@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.*;
 
@@ -56,6 +57,7 @@ public class GetAllCommits {
     	  String strDate = "2014-02-02T00:00";  
     	  String projName = "BOOKKEEPER";
     	  String organization = "apache";
+    	  Logger logger = Logger.getLogger(GetAllCommits.class.getName());
     	  
     	  GetAllCommits getCommits = new GetAllCommits(strDate);
     	  JSONArray commitsJsonArray = getCommits.getAllCommits(projName, organization);
@@ -67,7 +69,7 @@ public class GetAllCommits {
 	    		  file.write(commitsJsonArray.toString());
 	              file.flush();
 	      }catch(Exception e){
-	    	      e.printStackTrace();
+	    	  logger.log(Level.INFO, "context", e);
 	      }finally{
 	    	     file.close();
 	      }
