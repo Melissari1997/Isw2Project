@@ -31,7 +31,7 @@ public class GetAllCommits {
 	public  JSONArray getAllCommits (String projName , String organization) throws JSONException, IOException, ParseException {
 		Integer i = 0;
 		
-		Integer page =24;
+		Integer page =1;
 		Integer perPage = 100;
 		Logger.getLogger(GetAllCommits.class.getName());
         // prendo tutti i commits
@@ -49,9 +49,7 @@ public class GetAllCommits {
         		this.compareDate(commit.getJSONObject("commit").getJSONObject("committer").getString("date"), commit);
         	}
             page++;
-            if (page == 2) {
-            	break;
-            }
+            
        
         }while(total>0);
         return resultJson;

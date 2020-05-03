@@ -23,7 +23,9 @@ import com.opencsv.CSVWriter;
 
 public class RetrieveTicketsID {
 
-
+	static String projName ="Mahout";
+	static String organization = "apache";
+	static int threshold = 10;
 	private static TreeMap<String,Integer> mapDate = new TreeMap<>();
 
     private static String readAll(Reader rd) throws IOException {
@@ -96,6 +98,19 @@ public class RetrieveTicketsID {
        }
 	   return end;
    }
+   public static int[] findStartEnd(String commitMessage) {
+	   int[] resultArray = new int[2];
+	   int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
+	   int end = -1;
+	   if (start != -1) {
+		   end = stopChar(commitMessage,projName);
+	   }
+	   resultArray[0] = start;
+	   resultArray[1] = end;
+  
+	return resultArray;
+	   
+   }
    
    /*
     * Se il commit di Github esiste nella lista dei commit di Jiira, ritorna il Anno/Mese in cui ne è stato fatto il commit
@@ -117,13 +132,12 @@ public class RetrieveTicketsID {
 
   	   public static void main(String[] args) throws Exception {
 		   
-	   String projName ="Mahout";
-	   String organization = "apache";
+	   
 	   Integer i = 0;
 	   Integer page = 1;
 	   Integer perPage = 100;
 	   Logger logger = Logger.getLogger(RetrieveTicketsID.class.getName());
-	   int threshold = 10;   
+	     
 	   CSVWriter csvWriter = new CSVWriter(new FileWriter(projName + "BugChart.csv"),';',
                CSVWriter.NO_QUOTE_CHARACTER,
                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
@@ -135,7 +149,7 @@ public class RetrieveTicketsID {
       do {
     	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
     	  JSONArray jsonArray = new JSONArray(res);
-    	  System.out.println(jsonArray);
+    	  
     	 
     	  page++;
    	      total = jsonArray.length();
@@ -149,15 +163,16 @@ public class RetrieveTicketsID {
 			  }
 			  
 			  String ticketMessage = null;
-			  int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
-			  int end = stopChar(commitMessage,projName);
+			  int[] resultArray = findStartEnd(commitMessage);
+			  int start = resultArray[0];
+			  int end = resultArray[1];
+			
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
 			  
-              if (start<end && start != -1 && end != -1) {
-            	  System.out.println(commitMessage.substring(0, projName.length()+threshold).toLowerCase());
-            	  System.out.println(start);
-            	  System.out.println(end);
+              if (start<end) {
+            	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
+    			  
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
 				  logger.log(Level.INFO, ticketMessage);
 				  logger.log(Level.INFO, formattedDate);
