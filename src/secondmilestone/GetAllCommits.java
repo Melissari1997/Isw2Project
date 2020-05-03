@@ -24,6 +24,8 @@ public class GetAllCommits {
 		if (this.date.compareTo(formattedDateToCompare) >= 0) {
 			this.resultJson.put(commit);
 		}
+		
+
 	}
 	public  JSONArray getAllCommits (String projName , String organization) throws JSONException, IOException, ParseException {
 		Integer i = 0;
@@ -60,9 +62,16 @@ public class GetAllCommits {
     	  FileWriter file = null;
           
 	      file = new FileWriter("Commits Sha");
-	      file.write(commitsJsonArray.toString());
-	      file.flush();
-	  	  file.close();
+	      
+	      try {
+	    		  file.write(commitsJsonArray.toString());
+	              file.flush();
+	      }catch(Exception e){
+	    	      e.printStackTrace();
+	      }finally{
+	    	     file.close();
+	      }
+	    		  
       	
           }
       }
