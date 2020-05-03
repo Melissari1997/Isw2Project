@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class GetVersionInfo {
 		   String projName ="BOOKKEEPER";
 			 //Fills the arraylist with releases dates and orders them
 			   //Ignores releases with missing dates
-		   releases = new ArrayList<LocalDateTime>();
+		   releases = new ArrayList<>();
 	       Integer i;
 	       String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
 	       JSONObject json = readJsonFromUrl(url);
@@ -77,11 +78,11 @@ public class GetVersionInfo {
 		            }
 
 		         } catch (Exception e) {
-		            System.out.println("Error in csv writer");
+		          
 		            e.printStackTrace();
 		         } 
 			 	 csvWriter.close();
-		         return;
+		         
 		   }
 
 	
@@ -99,10 +100,9 @@ public class GetVersionInfo {
 	   public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
 	      InputStream is = new URL(url).openStream();
 	      try {
-	         BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+	         BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 	         String jsonText = readAll(rd);
-	         JSONObject json = new JSONObject(jsonText);
-	         return json;
+	         return new JSONObject(jsonText);
 	       } finally {
 	         is.close();
 	       }
