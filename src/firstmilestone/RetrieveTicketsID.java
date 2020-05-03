@@ -123,7 +123,7 @@ public class RetrieveTicketsID {
 	   Integer page = 1;
 	   Integer perPage = 100;
 	   Logger logger = Logger.getLogger(RetrieveTicketsID.class.getName());
-	   int threshold = 7;   
+	   int threshold = 10;   
 	   CSVWriter csvWriter = new CSVWriter(new FileWriter(projName + "BugChart.csv"),';',
                CSVWriter.NO_QUOTE_CHARACTER,
                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
@@ -135,6 +135,8 @@ public class RetrieveTicketsID {
       do {
     	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
     	  JSONArray jsonArray = new JSONArray(res);
+    	  System.out.println(jsonArray);
+    	 
     	  page++;
    	      total = jsonArray.length();
    	   
@@ -151,8 +153,10 @@ public class RetrieveTicketsID {
 			  int end = stopChar(commitMessage,projName);
 			  String date = key.getJSONObject("commit").getJSONObject("committer").getString("date");
 			  
-              if (start<end) {
-            	 
+              if (start<end && start != -1 && end != -1) {
+            	  System.out.println(commitMessage.substring(0, projName.length()+threshold).toLowerCase());
+            	  System.out.println(start);
+            	  System.out.println(end);
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
 				  logger.log(Level.INFO, ticketMessage);

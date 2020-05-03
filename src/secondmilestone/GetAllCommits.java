@@ -17,11 +17,11 @@ public class GetAllCommits {
 	private Date date = null;
 	
 	public GetAllCommits(String date) throws ParseException {
-		this.date = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+		this.date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(date);
 	}
 	
 	public void compareDate(String dateToCompare, JSONObject commit) throws ParseException {
-		Date formattedDateToCompare = new SimpleDateFormat("yyyy-MM-dd").parse(dateToCompare);
+		Date formattedDateToCompare = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(dateToCompare);
 		if (this.date.compareTo(formattedDateToCompare) >= 0) {
 			this.resultJson.put(commit);
 		}
@@ -31,22 +31,27 @@ public class GetAllCommits {
 	public  JSONArray getAllCommits (String projName , String organization) throws JSONException, IOException, ParseException {
 		Integer i = 0;
 		
-		Integer page =50;
+		Integer page =24;
+		Integer perPage = 100;
 		Logger.getLogger(GetAllCommits.class.getName());
         // prendo tutti i commits
         int total = 0;
         do {
-        	JSONArray jsonArray = RetrieveTicketsID.readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString());	       	
         	
+        	String res = RetrieveTicketsID.readJsonArrayFromUrl("https://api.github.com/repos/" + organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();
+        	JSONArray jsonArray = new JSONArray(res);
+        	System.out.println(jsonArray);
         	
         	total = jsonArray .length();
         
         	for (i = 0; i< total; i++) {
         		JSONObject commit = jsonArray.getJSONObject(i%1000);
-        		
         		this.compareDate(commit.getJSONObject("commit").getJSONObject("committer").getString("date"), commit);
         	}
             page++;
+            if (page == 2) {
+            	break;
+            }
        
         }while(total>0);
         return resultJson;
