@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -93,16 +92,16 @@ public class GetVersionInfo {
 		         releases.add(dateTime);
 	         releaseNames.put(dateTime, name);
 	         releaseID.put(dateTime, id);
-	         return;
+	        
 		 }
 
 
 	   public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
 	      InputStream is = new URL(url).openStream();
-	      try {
+	      try (
 	         BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-	         String jsonText = readAll(rd);
-	         return new JSONObject(jsonText);
+	         ){
+	         return new JSONObject(readAll(rd));
 	       } finally {
 	         is.close();
 	       }
