@@ -14,52 +14,53 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.opencsv.CSVWriter;
 
-public class getVersionInfo {
+public class GetVersionInfo {
 
-	   public static HashMap<LocalDateTime, String> releaseNames;
-	   public static HashMap<LocalDateTime, String> releaseID;
-	   public static ArrayList<LocalDateTime> releases;
-	   public static Integer numVersions;
-
-	public static void main(String[] args) throws IOException, JSONException {
-		   
-		   String projName ="MAHOUT";
-		 //Fills the arraylist with releases dates and orders them
-		   //Ignores releases with missing dates
+		   private static Map<LocalDateTime, String> releaseNames;
+		   private static Map<LocalDateTime, String> releaseID;
+		   private static ArrayList<LocalDateTime> releases;
+		   private static double progress = 0.5; // percentuale di progresso. 0.5 indica il 50% del progresso, ovvero il primo 50% delle versioni
+		   public static void main(String[] args) throws IOException, JSONException {
+			   
+		   String projName ="BOOKKEEPER";
+			 //Fills the arraylist with releases dates and orders them
+			   //Ignores releases with missing dates
 		   releases = new ArrayList<LocalDateTime>();
-		         Integer i;
-		         String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
-		         JSONObject json = readJsonFromUrl(url);
-		         JSONArray versions = json.getJSONArray("versions");
-		         releaseNames = new HashMap<LocalDateTime, String>();
-		         releaseID = new HashMap<LocalDateTime, String> ();
-		         for (i = 0; i < versions.length(); i++ ) {
-		            String name = "";
-		            String id = "";
-		            if(versions.getJSONObject(i).has("releaseDate")) {
-		               if (versions.getJSONObject(i).has("name"))
-		                  name = versions.getJSONObject(i).get("name").toString();
-		               if (versions.getJSONObject(i).has("id"))
-		                  id = versions.getJSONObject(i).get("id").toString();
-		               addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
-		                          name,id);
-		            }
-		         }
-		         // order releases by date
-		         Collections.sort(releases, new Comparator<LocalDateTime>(){
-		            //@Override
-		            public int compare(LocalDateTime o1, LocalDateTime o2) {
-		                return o1.compareTo(o2);
-		            }
-		         });
-		         if (releases.size() < 6)
-		            return;
-		         CSVWriter csvWriter = null;
+	       Integer i;
+	       String url = "https://issues.apache.org/jira/rest/api/2/project/" + projName;
+	       JSONObject json = readJsonFromUrl(url);
+	       JSONArray versions = json.getJSONArray("versions");
+	       releaseNames = new HashMap<>();
+	       releaseID = new HashMap<> ();
+	       for (i = 0; i < versions.length(); i++ ) {
+            String name = "";
+            String id = "";
+            if(versions.getJSONObject(i).has("releaseDate")) {
+               if (versions.getJSONObject(i).has("name"))
+                  name = versions.getJSONObject(i).get("name").toString();
+               if (versions.getJSONObject(i).has("id"))
+                  id = versions.getJSONObject(i).get("id").toString();
+               addRelease(versions.getJSONObject(i).get("releaseDate").toString(),
+                          name,id);
+	            }
+	         }
+	         // order releases by date
+	         Collections.sort(releases, new Comparator<LocalDateTime>(){
+	            //@Override
+	            public int compare(LocalDateTime o1, LocalDateTime o2) {
+	                return o1.compareTo(o2);
+	            }
+	         });
+	         if (releases.size() < 6)
+	            return;
+	         CSVWriter csvWriter = null;
 			 try {
 	
 		            //Name of CSV for output
@@ -69,9 +70,8 @@ public class getVersionInfo {
 		                    CSVWriter.DEFAULT_LINE_END);
 
 		            csvWriter.writeNext(new String[] {"Index","Version ID","Version Name","Date"});
-		           
-		            numVersions = releases.size();
-		            for ( i = 0; i < releases.size(); i++) {
+		         
+		            for ( i = 0; i < releases.size()*progress; i++) {
 		               Integer index = i + 1;
 		               csvWriter.writeNext(new String[] {index.toString(),releaseID.get(releases.get(i)),releaseNames.get(releases.get(i)),releases.get(i).toString()});
 		            }
@@ -90,10 +90,10 @@ public class getVersionInfo {
 		      LocalDateTime dateTime = date.atStartOfDay();
 		      if (!releases.contains(dateTime))
 		         releases.add(dateTime);
-		      releaseNames.put(dateTime, name);
-		      releaseID.put(dateTime, id);
-		      return;
-		   }
+	         releaseNames.put(dateTime, name);
+	         releaseID.put(dateTime, id);
+	         return;
+		 }
 
 
 	   public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
