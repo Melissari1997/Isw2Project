@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,15 +50,10 @@ public class GetVersionInfo {
                           name,id);
 	            }
 	         }
-	       Comparator<LocalDateTime> comparator = new Comparator<LocalDateTime>(){
-	            //@Override
-	            public int compare(LocalDateTime o1, LocalDateTime o2) {
-	                return o1.compareTo(o2);
-	            }
-	       };
-
+	      
 	         // order releases by date
-	         Collections.sort(releases, comparator);
+	         Collections.sort(releases, (o1,o2) ->  o1.compareTo(o2));
+	         
 	         if (releases.size() < 6)
 	            return;
 	         CSVWriter csvWriter = null;
@@ -82,7 +76,11 @@ public class GetVersionInfo {
 		          
 		            e.printStackTrace();
 		         } 
-			 	 csvWriter.close();
+			 try {
+				 csvWriter.close();
+			 }catch(Exception e) {
+				 e.printStackTrace();
+			 }
 		         
 		   }
 
