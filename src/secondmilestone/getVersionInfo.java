@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ public class GetVersionInfo {
 		   private static Map<LocalDateTime, String> releaseNames;
 		   private static Map<LocalDateTime, String> releaseID;
 		   private static ArrayList<LocalDateTime> releases;
+		   static Logger logger = Logger.getLogger(GetVersionInfo.class.getName());
 		   private static double progress = 0.5; // percentuale di progresso. 0.5 indica il 50% del progresso, ovvero il primo 50% delle versioni
 		   public static void main(String[] args) throws IOException, JSONException {
 			   
@@ -74,7 +76,7 @@ public class GetVersionInfo {
 
 		         } catch (Exception e) {
 		          
-		            e.printStackTrace();
+		            logger.log(Level.INFO, "context", e);
 		         } 
 			 
 				 if (csvWriter != null) {
