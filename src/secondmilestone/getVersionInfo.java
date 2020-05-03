@@ -76,11 +76,11 @@ public class GetVersionInfo {
 		          
 		            e.printStackTrace();
 		         } 
-			 try {
-				 csvWriter.close();
-			 }catch(Exception e) {
-				 e.printStackTrace();
-			 }
+			 
+				 if (csvWriter != null) {
+					 csvWriter.close();
+				 }
+			 
 		         
 		   }
 
