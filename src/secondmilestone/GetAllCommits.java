@@ -40,7 +40,7 @@ public class GetAllCommits {
         	
         	String res = RetrieveTicketsID.readJsonArrayFromUrl("https://api.github.com/repos/" + organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();
         	JSONArray jsonArray = new JSONArray(res);
-        	System.out.println(jsonArray);
+        	
         	
         	total = jsonArray .length();
         
