@@ -51,13 +51,15 @@ public class GetVersionInfo {
                           name,id);
 	            }
 	         }
-	         // order releases by date
-	         Collections.sort(releases, new Comparator<LocalDateTime>(){
+	       Comparator<LocalDateTime> comparator = new Comparator<LocalDateTime>(){
 	            //@Override
 	            public int compare(LocalDateTime o1, LocalDateTime o2) {
 	                return o1.compareTo(o2);
 	            }
-	         });
+	       };
+
+	         // order releases by date
+	         Collections.sort(releases, comparator);
 	         if (releases.size() < 6)
 	            return;
 	         CSVWriter csvWriter = null;
