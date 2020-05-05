@@ -27,7 +27,7 @@ public class GetVersionInfo {
 		   private static Map<LocalDateTime, String> releaseID;
 		   private static ArrayList<LocalDateTime> releases;
 		   static Logger logger = Logger.getLogger(GetVersionInfo.class.getName());
-		   private static double progress = 0.5; // percentuale di progresso. 0.5 indica il 50% del progresso, ovvero il primo 50% delle versioni
+		   private static double progress = 0.5; // percentuale di progresso. 0.5 indica il  50% del progresso, ovvero il primo 50% delle versioni
 		   public static void main(String[] args) throws IOException, JSONException {
 			   
 		   String projName ="BOOKKEEPER";
