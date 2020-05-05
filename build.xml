@@ -9,27 +9,28 @@
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
     <path id="ISW2Project.classpath">
-        <pathelement location="bin"/>
+        <pathelement location="target/classes"/>
         <pathelement location="opencsv-3.4.jar"/>
         <pathelement location="java-json.jar"/>
     </path>
     <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
+        <mkdir dir="target/classes"/>
+        <copy includeemptydirs="false" todir="target/classes">
             <fileset dir="src">
+                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
     </target>
     <target name="clean">
-        <delete dir="bin"/>
+        <delete dir="target/classes"/>
     </target>
     <target depends="clean" name="cleanall"/>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
             <classpath refid="ISW2Project.classpath"/>
         </javac>
@@ -49,28 +50,58 @@
         <antcall target="build"/>
     </target>
     <target name="CSV_Test">
-        <java classname="firstMilestone.CSV_Test" failonerror="true" fork="yes">
+        <java classname="firstmilestone.CSV_Test" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="GetAllCommits">
+        <java classname="secondmilestone.GetAllCommits" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="getReleaseInfo">
+        <java classname="secondmilestone.getReleaseInfo" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="getVersionInfo">
+        <java classname="secondmilestone.GetVersionInfo" failonerror="true" fork="yes">
             <classpath refid="ISW2Project.classpath"/>
         </java>
     </target>
     <target name="githubConnector">
-        <java classname="firstMilestone.githubConnector" failonerror="true" fork="yes">
+        <java classname="firstmilestone.githubConnector" failonerror="true" fork="yes">
             <arg line="https://api.github.com/repos/apache/Mahout/commits?page=10000"/>
             <classpath refid="ISW2Project.classpath"/>
         </java>
     </target>
     <target name="Hello_Test">
-        <java classname="firstMilestone.Hello_Test" failonerror="true" fork="yes">
+        <java classname="firstmilestone.Hello_Test" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="JgitExample">
+        <java classname="secondmilestone.JgitExample" failonerror="true" fork="yes">
             <classpath refid="ISW2Project.classpath"/>
         </java>
     </target>
     <target name="RetrieveTicketsID (1)">
-        <java classname="firstMilestone.RetrieveTicketsID" failonerror="true" fork="yes">
+        <java classname="firstmilestone.RetrieveTicketsID" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="SubstringTest">
+        <java classname="firstmilestone.SubstringTest" failonerror="true" fork="yes">
             <classpath refid="ISW2Project.classpath"/>
         </java>
     </target>
     <target name="testSubstring">
-        <java classname="firstMilestone.testSubstring" failonerror="true" fork="yes">
+        <java classname="firstmilestone.testsubstring" failonerror="true" fork="yes">
+            <classpath refid="ISW2Project.classpath"/>
+        </java>
+    </target>
+    <target name="VersionParser">
+        <java classname="secondmilestone.VersionParser" failonerror="true" fork="yes">
             <classpath refid="ISW2Project.classpath"/>
         </java>
     </target>
