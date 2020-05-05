@@ -9,10 +9,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.opencsv.CSVReader;
 
 public class VersionParser {
 	private String dateFormat = "yyyy-MM-dd'T'HH:mm";
+	private Logger logger = Logger.getLogger(GetVersionInfo.class.getName());
 	
 	/*
 	 * Prende la data di un commit ed un progetto, e ritorna a quale versione di quel progetto appartiene la commit
@@ -38,17 +42,13 @@ public class VersionParser {
 	        	}          
 		    }       
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			this.logger.log(Level.INFO, "context", e);
 		}finally {
-			csvReader.close();
+			if(csvReader != null) {
+				csvReader.close();
+			}
 		}
 		
 		return result;
 	}
-	public static void main(String[] args) throws ParseException, IOException {
-		VersionParser vp = new VersionParser();
-		Date date = new SimpleDateFormat(vp.dateFormat).parse("2010-02-27T00:00");
-		System.out.println(vp.getVersionName(date, "OPENJPA"));
-	}
-
 }
