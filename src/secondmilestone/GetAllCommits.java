@@ -66,7 +66,7 @@ public class GetAllCommits {
     	  JSONArray commitsJsonArray = getCommits.getAllCommits(projName, organization);
     	  FileWriter file = null;
           
-	      file = new FileWriter("Commits Sha");
+	      file = new FileWriter(projName +"_Commits_Sha.JSON");
 	      
 	      try {
 	    		  file.write(commitsJsonArray.toString());
