@@ -12,6 +12,7 @@ import java.util.List;
 import com.opencsv.CSVReader;
 
 public class VersionParser {
+	private String dateFormat = "yyyy-MM-dd'T'HH:mm";
 	
 	/*
 	 * Prende la data di un commit ed un progetto, e ritorna a quale versione di quel progetto appartiene la commit
@@ -20,7 +21,6 @@ public class VersionParser {
 	public String getVersionName(Date commitDate, String projName) throws IOException, ParseException {
 		CSVReader csvReader = null;
 		String  result =null;
-		System.out.println("My date " + commitDate);
 		try {
 			Reader reader = Files.newBufferedReader(Paths.get(projName + "VersionInfo.csv"));
 			csvReader = new CSVReader(reader,';',
@@ -28,8 +28,8 @@ public class VersionParser {
 		
 		    List<String[]>  records = csvReader.readAll();
 		    for (int i = 0; i < records.size()-1; i++) {
-		        Date dateOfVersion = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(records.get(i)[3]);
-                Date nextDateOfVersion = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(records.get(i+1)[3]);
+		        Date dateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i)[3]);
+                Date nextDateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i+1)[3]);
                 if (commitDate.compareTo(dateOfVersion) == 0) {
 	        			result = records.get(i)[2];
 	        	}
@@ -38,7 +38,6 @@ public class VersionParser {
 	        	}          
 		    }       
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
 			csvReader.close();
@@ -47,9 +46,8 @@ public class VersionParser {
 		return result;
 	}
 	public static void main(String[] args) throws ParseException, IOException {
-		// TODO Auto-generated method stub
 		VersionParser vp = new VersionParser();
-		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse("2010-02-27T00:00");
+		Date date = new SimpleDateFormat(vp.dateFormat).parse("2010-02-27T00:00");
 		System.out.println(vp.getVersionName(date, "OPENJPA"));
 	}
 
