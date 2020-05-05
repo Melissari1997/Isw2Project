@@ -98,7 +98,7 @@ public class RetrieveTicketsID {
        }
 	   return end;
    }
-   public static int[] findStartEnd(String commitMessage) {
+   public static int[] findStartEnd(String projName, String commitMessage) {
 	   int[] resultArray = new int[2];
 	   int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
 	   int end = -1;
@@ -163,7 +163,7 @@ public class RetrieveTicketsID {
 			  }
 			  
 			  String ticketMessage = null;
-			  int[] resultArray = findStartEnd(commitMessage);
+			  int[] resultArray = findStartEnd(projName,commitMessage);
 			  int start = resultArray[0];
 			  int end = resultArray[1];
 			
