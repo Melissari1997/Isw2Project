@@ -21,11 +21,13 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import com.opencsv.CSVWriter;
 
+import secondmilestone.GithubConnector;
+
 public class RetrieveTicketsID {
 
 	static String projName ="Mahout";
 	static String organization = "apache";
-	static int threshold = 10;
+	static int threshold = 7;
 	private static TreeMap<String,Integer> mapDate = new TreeMap<>();
 
     private static String readAll(Reader rd) throws IOException {
@@ -85,29 +87,30 @@ public class RetrieveTicketsID {
       } while (i < total);
       return ticketList;
    }
-   
-   public static int stopChar(String commitMessage, String projName) {
-	   int end = -1;
-	   if (commitMessage.toLowerCase().contains("[" + projName.toLowerCase()+ "-")) {
- 		  end = commitMessage.indexOf(']'); // trova l'occorrenza del carattere ], ovvero della fine della dichiarazione del ticket
-       }
-       else {
-     	  if(commitMessage.toLowerCase().contains(projName.toLowerCase()+ "-") && commitMessage.contains(":")) {
-     		  end = commitMessage.indexOf(':');
-     	  }
-       }
-	   return end;
-   }
    public static int[] findStartEnd(String projName, String commitMessage) {
+	   
 	   int[] resultArray = new int[2];
-	   int start= commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf((projName + "-").toLowerCase());
+	   int start = commitMessage.substring(0, projName.length()+threshold).toLowerCase().indexOf(projName.toLowerCase()+ "-");
 	   int end = -1;
-	   if (start != -1) {
-		   end = stopChar(commitMessage,projName);
-	   }
+
+		 if (start != -1) {		   
+			   String startString = commitMessage.substring(0, projName.length()+threshold).substring(start).toLowerCase();			   
+			   if (startString.matches(projName.toLowerCase()+ "-[0-9][0-9][0-9][0-9].*")) {
+				   	end = start + projName.length()+5;
+			   }
+			   else if (startString.matches(projName.toLowerCase()+ "-[0-9][0-9][0-9].*")) {
+				   end = start + projName.length()+4;
+			   }
+			   else if (startString.matches(projName.toLowerCase()+ "-[0-9][0-9].*")) {
+				   end = start + projName.length()+3;
+			   }
+			   else if (startString.matches(projName.toLowerCase()+ "-[0-9].*")) {
+				   end = start + projName.length()+2;
+			   }
+		   }
+	   
 	   resultArray[0] = start;
-	   resultArray[1] = end;
-  
+	   resultArray[1] = end;	   
 	return resultArray;
 	   
    }
@@ -147,7 +150,7 @@ public class RetrieveTicketsID {
 	   int total = 0;
 
       do {
-    	  String res = readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
+    	  String res = GithubConnector.readJsonArrayFromUrl("https://api.github.com/repos/" +organization + "/"+ projName +"/commits?page="+ page.toString()+"&per_page=" + perPage.toString()).toString();	
     	  JSONArray jsonArray = new JSONArray(res);
     	  
     	 
@@ -172,8 +175,8 @@ public class RetrieveTicketsID {
               if (start<end) {
             	 
     			  ticketMessage = commitMessage.substring(start,end); // prendo tutto finchè non trovo ] o :
-    			  
     			  String formattedDate = checkEsistence(ticketsID, ticketMessage,date);
+    			  
 				  logger.log(Level.INFO, ticketMessage);
 				  logger.log(Level.INFO, formattedDate);
 				  logger.log(Level.INFO, "---------------");

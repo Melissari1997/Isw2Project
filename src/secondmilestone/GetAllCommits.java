@@ -13,26 +13,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.*;
 
+
 import firstmilestone.RetrieveTicketsID;
 
 public class GetAllCommits {
 	
 	private JSONArray resultJson = new JSONArray();
-	private Date date = null;
+	private Date startDate = null;
+	private Date endDate = null;
 	
-	public GetAllCommits(String date) throws ParseException {
-		this.date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(date);
+	public GetAllCommits(String startDate, String endDate) throws ParseException {
+		this.startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+		this.endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
 	}
 	
 	public void compareDate(String dateToCompare, JSONObject commit) throws ParseException {
-		Date formattedDateToCompare = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(dateToCompare);
-		if (this.date.compareTo(formattedDateToCompare) >= 0) {
+		Date formattedDateToCompare = new SimpleDateFormat("yyyy-MM-dd").parse(dateToCompare);
+		if (this.startDate.compareTo(formattedDateToCompare) <= 0 && this.endDate.compareTo(formattedDateToCompare) >= 0) {
 			this.resultJson.put(commit);
 		}
-		
-
 	}
-	
+
 	public JSONArray getExtendedCommits(String projName, String fileName) throws IOException, JSONException, ParseException {
 		JSONArray result = new JSONArray();
         String token = new String(Files.readAllBytes(Paths.get(fileName)));
@@ -44,16 +45,16 @@ public class GetAllCommits {
 		System.out.println(total);
         for (i = 0; i < total; i++) {
         	
-        	JSONObject jsonCommit = RetrieveTicketsID.readJsonFromUrl(object.getJSONObject(i).getString("url"));
+        	JSONObject jsonCommit = GithubConnector.readJsonFromUrl(object.getJSONObject(i).getString("url"));
         	Date commitDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(jsonCommit.getJSONObject("commit").getJSONObject("committer").getString("date"));
         	jsonCommit.put("Version", vp.getVersionName(commitDate, projName));
         	
         	String commitMessage = jsonCommit.getJSONObject("commit").get("message").toString(); 
-            if(commitMessage.length() < projName.length()+ 8) {
+            if(commitMessage.length() < projName.length()+ 7) {
    				 break;
    			}
    			  
-		    String ticketMessage = null;
+		    String ticketMessage = "";
    			int[] resultArray = RetrieveTicketsID.findStartEnd(projName, commitMessage);
    			int start = resultArray[0];
    			int end = resultArray[1];
@@ -66,8 +67,8 @@ public class GetAllCommits {
          	else {
          	  jsonCommit.put("FixCommit", "");
          	}  
+   		    System.out.println("JSON Commit for iteration: " + i);
         	result.put(jsonCommit);
-            i++;
         }
         return result;
 		
@@ -101,12 +102,13 @@ public class GetAllCommits {
              
       public static void main(String[] args) throws JSONException, IOException, ParseException {
     	 
-    	  String strDate = "2014-02-02T00:00";  
-    	  String projName = "BOOKKEEPER";
+    	  String endDate = "2010-02-27";  
+    	  String startDate = "2006-08-26";
+    	  String projName = "OPENJPA";
     	  String organization = "apache";
     	  FileWriter file = null;
     	  Logger logger = Logger.getLogger(GetAllCommits.class.getName());
-    	  GetAllCommits getCommits = new GetAllCommits(strDate);
+    	  GetAllCommits getCommits = new GetAllCommits(startDate,endDate);
     	  File tmpDir = new File(projName +"_Commits_Sha.JSON");
     	  if ( !tmpDir.exists()) {
         	  JSONArray commitsJsonArray = getCommits.getAllCommits(projName, organization);
@@ -123,7 +125,7 @@ public class GetAllCommits {
     	    	
     	  }
     	  JSONArray extendedCommitsJsonArray = getCommits.getExtendedCommits(projName, projName +"_Commits_Sha.JSON");
-    	  file = new FileWriter(projName +"Extended_Commits_Sha.JSON");
+    	  file = new FileWriter(projName +"_Extended_Commits_Sha.JSON");
 	      
 	      try {
 	    		  file.write(extendedCommitsJsonArray.toString());
