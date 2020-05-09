@@ -46,7 +46,7 @@ public class GetAllCommits {
         for (i = 0; i < total; i++) {
         	
         	JSONObject jsonCommit = GithubConnector.readJsonFromUrl(object.getJSONObject(i).getString("url"));
-        	Date commitDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(jsonCommit.getJSONObject("commit").getJSONObject("committer").getString("date"));
+        	Date commitDate = new SimpleDateFormat("yyyy-MM-dd").parse(jsonCommit.getJSONObject("commit").getJSONObject("committer").getString("date"));
         	jsonCommit.put("Version", vp.getVersionName(commitDate, projName));
         	
         	String commitMessage = jsonCommit.getJSONObject("commit").get("message").toString(); 
@@ -67,7 +67,6 @@ public class GetAllCommits {
          	else {
          	  jsonCommit.put("FixCommit", "");
          	}  
-   		    System.out.println("JSON Commit for iteration: " + i);
         	result.put(jsonCommit);
         }
         return result;
@@ -79,7 +78,6 @@ public class GetAllCommits {
 		Integer page =1;
 		Integer perPage = 100;
 		Logger.getLogger(GetAllCommits.class.getName());
-        // prendo tutti i commits
         int total = 0;
         do {
         	
@@ -102,9 +100,9 @@ public class GetAllCommits {
              
       public static void main(String[] args) throws JSONException, IOException, ParseException {
     	 
-    	  String endDate = "2010-02-27";  
-    	  String startDate = "2006-08-26";
-    	  String projName = "OPENJPA";
+    	  String endDate = "2014-02-02";  
+    	  String startDate = "2011-12-07";
+    	  String projName = "BOOKKEEPER";
     	  String organization = "apache";
     	  FileWriter file = null;
     	  Logger logger = Logger.getLogger(GetAllCommits.class.getName());

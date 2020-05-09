@@ -94,30 +94,13 @@ public class GetTicketInfo {
       
 	public static JSONArray getTicketID(String projName,String start, String end) throws IOException, JSONException, ParseException{
 		 
-		   Integer j = 0;
-		   Integer i = 0; 
-		   Integer total = 1;
-		   VersionParser vp = new VersionParser();
-		   /*
-		   List<String> versionList = vp.getVersionList(projName);
-		   
-		   String temp =(String) versionList.stream()
-		   .map(String::toString) // maps String to a value returned by toString method
-		   .collect(Collectors.joining(","));
-		   */
-		   JSONArray ticketList = new JSONArray();
-	      //Get JSON API for closed bugs w/ AV in the project
+		  Integer j = 0;
+		  Integer i = 0; 
+		  Integer total = 1;
+		  VersionParser vp = new VersionParser();
+		  JSONArray ticketList = new JSONArray();
 	      do {
-	         //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
 	         j = i + 1000;
-	         /*
-	         String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project%20%3D%20"+projName+"%20AND%20issuetype%20%3D%20Bug%20AND%20status%20in%20(Resolved,%20Closed)%20AND%20resolution%20=%20Fixed%20and%20(resolutiondate%20<=%20\""+end+"\"%20or%20fixVersion%20in%20("+temp+"))%20and%20"
-	         		+ "createdDate%20%20>=%22"+start+"%22%20"
-	         		+ "%20and%20createdDate%20%20<=%22"+end+"%22%20"
-	         		+ "ORDER%20BY%20resolutiondate%20DESC"
-	         		+ "&&fields=resolutiondate,fixVersions,versions,created&startAt="+ 
-	         		i.toString() + "&maxResults=" + j.toString();
-	         		*/
 	         String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project%20%3D%20"+projName+"%20AND%20issuetype%20%3D%20Bug%20AND%20status%20in%20(Resolved,%20Closed)%20AND%20resolution%20=%20Fixed%20&&fields=resolutiondate,fixVersions,versions,created&startAt="+ 
 		         		i.toString() + "&maxResults=" + j.toString();
 	         JSONObject json = readJsonFromUrl(url);
@@ -133,12 +116,7 @@ public class GetTicketInfo {
 	            	Date resolutionDate = new SimpleDateFormat("yyyy-MM-dd").parse(key.getJSONObject("fields").getString("resolutiondate")); 
 	            	jsonresolutionDate.put("name", vp.getVersionName(resolutionDate, projName));
 	            	key.getJSONObject("fields").getJSONArray("fixVersions").put(jsonresolutionDate);
-	            } /*else {
-	            	deleteFutureVersions(key.getJSONObject("fields").getJSONArray("fixVersions"), projName);
-	            }*/
-	            
-	            
-	            //JSONArray affectedVersion = key.getJSONObject("fields").getJSONArray("versions");
+	            } 
             	String IV = getInjectedVersion(key);
             	key.getJSONObject("fields").put("injectedversion", IV);  
 	            ticketList.put(key);

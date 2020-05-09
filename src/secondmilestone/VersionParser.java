@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import com.opencsv.CSVReader;
 
 public class VersionParser {
-	private String dateFormat = "yyyy-MM-dd'T'HH:mm";
+	private String dateFormat = "yyyy-MM-dd";
 	private Logger logger = Logger.getLogger(GetVersionInfo.class.getName());
 	
 	public List<String> getVersionList(String projName) throws IOException{
@@ -28,8 +28,8 @@ public class VersionParser {
 		    		',', '\'',1);
 		
 		    List<String[]>  records = csvReader.readAll();
-		    for (int i = 0; i < records.size()-1; i++) {
-		    	result.add(records.get(i)[2]);         
+		    for (int i = 0; i < records.size(); i++) {
+		    	result.add(records.get(i)[0]);         
 		    }       
 		} catch (FileNotFoundException e) {
 			this.logger.log(Level.INFO, "context", e);
@@ -58,12 +58,12 @@ public class VersionParser {
 		    for (int i = 0; i < records.size()-1; i++) {
 		        Date dateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i)[3]);
                 Date nextDateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i+1)[3]);
-                if (commitDate.compareTo(dateOfVersion) == 0) {
-	        			result = records.get(i)[2];
-	        	}
 	        	if (commitDate.compareTo(dateOfVersion) > 0 && commitDate.compareTo(nextDateOfVersion) <= 0) {
-	        			result = records.get(i+1)[2];
+	        			result = records.get(i+1)[0]; 
 	        	}          
+	        	if (commitDate.compareTo(dateOfVersion) == 0) {
+    			result = records.get(i)[0];
+	        	}
 		    }       
 		} catch (FileNotFoundException e) {
 			this.logger.log(Level.INFO, "context", e);
