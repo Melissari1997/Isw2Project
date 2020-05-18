@@ -1,12 +1,12 @@
 package secondmilestone;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,9 +35,7 @@ public class CreateDataset {
         		return commitsOfVersion.getJSONObject(0);
         	};
         }
-        if(commitsOfVersion.length() == 0) {
-        	System.out.println(Version);
-        }       
+             
 		return null;
 	}
 	public static JSONObject getVersionCommit(String projName, String Version) throws IOException, JSONException {
@@ -52,17 +50,12 @@ public class CreateDataset {
 		
 		    List<String[]>  records = csvReader.readAll();
 		    for (int i = 0; i < records.size(); i++) {
-		    	System.out.println(records.get(i)[4]);
-		    	if(records.get(i)[4].isEmpty()) {
-		    		return getCommitFromVersionName(projName + "_Extended_Commits_Sha.JSON", Version);
+	    		if(records.get(i)[0].equals(Version)) {
+		    		 result = GithubConnector.readJsonFromUrl("https://api.github.com/repos/apache/"+ projName+"/commits/" + records.get(i)[4]);
+		    		
+		    		 return result;
 		    	}
-		    	else{
-		    		if(records.get(i)[0].equals(Version)) {
-			    		 result = GithubConnector.readJsonFromUrl("https://api.github.com/repos/apache/"+ projName+"/commits/" + records.get(i)[4]);
-			    		 System.out.println(result);
-			    		 return result;
-			    	}
-		    	}   
+		    	   
 		    }       
 		} catch (FileNotFoundException e) {
 			logger.log(Level.INFO, "context", e);
@@ -74,40 +67,74 @@ public class CreateDataset {
 		return null;		
 	}
 	public static JSONArray getTreeSha(String projName, String fileName, String Version) throws IOException, JSONException {
-		
 		JSONObject versionCommit = getVersionCommit(projName,Version);
+		if(versionCommit == null)
+			return null;
 		JSONObject treeSha = GithubConnector.readJsonFromUrl(versionCommit.getJSONObject("commit").getJSONObject("tree").getString("url")+"?recursive=1");
-		System.out.println(treeSha.getJSONArray("tree"));
 		return treeSha.getJSONArray("tree");
 	}
  
-	public static void main(String[] args) throws ParseException, JSONException, IOException {
+	public static void main(String[] args) throws Exception {
   	  String projName = "OPENJPA";
   	  String fileName = projName + "VersionInfo.csv";
   	  VersionParser vp = new VersionParser();
   	  List<String> versionsList = vp.getVersionList(projName);
+  	  versionsList.remove(versionsList.size()-1);
+  	  File tmpDir = new File(projName +"Dataset.csv");
+	  if ( !tmpDir.exists()) {
   	  CSVWriter csvWriter =  new CSVWriter(new FileWriter(projName + "Dataset.csv"),';',
             CSVWriter.NO_QUOTE_CHARACTER,
             CSVWriter.DEFAULT_ESCAPE_CHARACTER,
             CSVWriter.DEFAULT_LINE_END);
 
-     csvWriter.writeNext(new String[] {"FileName","Version Name","Buggy"});
+     csvWriter.writeNext( new String[] {"FileName","Version Name","#Revision","#FixCommit","Size","Churn", "MaxChurn","AvgChurn","ChgSetSize","MaxChgSetSize","AvgChgSetSize","Buggy"});
   	  for( String version :versionsList) {
   	  	  JSONArray treeSha = getTreeSha(projName, fileName, version);
+  	  	  if(treeSha == null) {
+  	  		  //versionsList.remove(version);
+  	  		  continue;
+  	  	  }
   	  	  try {
             for ( int i = 0; i < treeSha.length(); i++) {
                 String type = treeSha.getJSONObject(i).getString("type");
-                if(type.equals("blob")) {
-                	csvWriter.writeNext(new String[] {treeSha.getJSONObject(i).getString("path"),version, "No"});
-                }     
+                if(type.equals("blob") && treeSha.getJSONObject(i).getString("path").contains(".java")) {
+                	//boolean buggyness = findBug.findBuggyness(treeSha.getJSONObject(i).getString("path"), projName, version,ticketInfoJson);
+                	csvWriter.writeNext(new String[] {treeSha.getJSONObject(i).getString("path"),version,"0","0","0","0","0","0","0","0","0", "no"});
+                	csvWriter.flush();
+                } 
              }  
   	      }catch(Exception e) {
   		  e.printStackTrace();
   	      }
 	 }
-  	 if (csvWriter != null) {
+  	if (csvWriter != null) {
 		 csvWriter.close();
 	 }
+	  }
+  	  /*
+  	   * Leggo tutto il extended commit e mi fermo ogni volta che ho una fix commit.
+  	   * Vedo quali erano i file commitati, e per loro vedo se son
+  	   */
+  	  Reader reader = Files.newBufferedReader(Paths.get(projName + "Dataset.csv"));
+	  CSVReader csvReader = new CSVReader(reader,';',
+    		',', '\'',1);
+	  List<String[]> records = csvReader.readAll();
+	  csvReader.close();
+  	  List<String[]>result = MetricsCalculator.findBuggyness(projName, records);
+	  CSVWriter csvAddMetrics =  new CSVWriter(new FileWriter(projName + "Dataset.csv"),';',
+	            CSVWriter.NO_QUOTE_CHARACTER,
+	            CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+	            CSVWriter.DEFAULT_LINE_END);
+	 
+	  result.add(0, new String[] {"FileName","Version Name","#Revision","#FixCommit","Size","Churn", "MaxChurn","AvgChurn","ChgSetSize","MaxChgSetSize","AvgChgSetSize","Buggy"});
+	  csvAddMetrics.writeAll(result);
+	  csvAddMetrics.flush();
+	  csvAddMetrics.close();
+  	  /*
+ 	 if (csvWriter != null) {
+ 		 csvWriter.close();
+ 	 }*/
+
 
    }
 	

@@ -16,8 +16,21 @@ import java.util.logging.Logger;
 import com.opencsv.CSVReader;
 
 public class VersionParser {
-	private String dateFormat = "yyyy-MM-dd";
-	private Logger logger = Logger.getLogger(GetVersionInfo.class.getName());
+	private String dateFormat;
+	private Logger logger; 
+	private  double progress;  // percentuale di progresso. 0.5 indica il   50% del progresso, ovvero il primo 50% delle versioni
+	
+	public double getProgress() {
+		return this.progress;
+	}
+	public void setProgress(double progress) {
+		this.progress = progress;
+	}
+	public VersionParser() {
+		this.progress = 0.5;
+		this.dateFormat = "yyyy-MM-dd";
+		this.logger = Logger.getLogger(VersionParser.class.getName());
+	}
 	
 	public List<String> getVersionList(String projName) throws IOException{
 		CSVReader csvReader = null;
@@ -28,6 +41,13 @@ public class VersionParser {
 		    		',', '\'',1);
 		
 		    List<String[]>  records = csvReader.readAll();
+		    int start = ((int) (records.size()*this.progress));
+		    if(this.progress!= 1.0)
+		    	start++;
+		    for(int j = start; j< records.size();j++) {
+		    	records.remove(j);
+		    	j--;
+		    }
 		    for (int i = 0; i < records.size(); i++) {
 		    	result.add(records.get(i)[0]);         
 		    }       
@@ -55,14 +75,24 @@ public class VersionParser {
 		    		',', '\'',1);
 		
 		    List<String[]>  records = csvReader.readAll();
+		    int start = ((int) (records.size()*this.progress));
+		    if(this.progress!= 1.0)
+		    	start++;
+		    for(int j = start; j< records.size();j++) {
+		    	records.remove(j);
+		    	j--;
+		    } 
 		    for (int i = 0; i < records.size()-1; i++) {
 		        Date dateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i)[3]);
                 Date nextDateOfVersion = new SimpleDateFormat(this.dateFormat).parse(records.get(i+1)[3]);
-	        	if (commitDate.compareTo(dateOfVersion) > 0 && commitDate.compareTo(nextDateOfVersion) <= 0) {
-	        			result = records.get(i+1)[0]; 
+	        	if (commitDate.compareTo(dateOfVersion) >= 0 && commitDate.compareTo(nextDateOfVersion) < 0) {
+	        			result = records.get(i)[0]; 
 	        	}          
-	        	if (commitDate.compareTo(dateOfVersion) == 0) {
+	        	if (i == 0 && commitDate.compareTo(dateOfVersion) < 0) {
     			result = records.get(i)[0];
+	        	}
+	        	if(commitDate.compareTo(nextDateOfVersion) == 0) {
+	        		result = records.get(i+1)[0];
 	        	}
 		    }       
 		} catch (FileNotFoundException e) {

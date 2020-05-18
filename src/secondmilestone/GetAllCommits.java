@@ -15,9 +15,9 @@ import org.json.*;
 
 
 import firstmilestone.RetrieveTicketsID;
-
+ 
 public class GetAllCommits {
-	
+	 
 	private JSONArray resultJson = new JSONArray();
 	private Date startDate = null;
 	private Date endDate = null;
@@ -29,7 +29,7 @@ public class GetAllCommits {
 	
 	public void compareDate(String dateToCompare, JSONObject commit) throws ParseException {
 		Date formattedDateToCompare = new SimpleDateFormat("yyyy-MM-dd").parse(dateToCompare);
-		if (this.startDate.compareTo(formattedDateToCompare) <= 0 && this.endDate.compareTo(formattedDateToCompare) >= 0) {
+		if (this.startDate.compareTo(formattedDateToCompare) <= 0 && this.endDate.compareTo(formattedDateToCompare) > 0) {
 			this.resultJson.put(commit);
 		}
 	}
@@ -44,7 +44,7 @@ public class GetAllCommits {
 		int total = object.length();
 		System.out.println(total);
         for (i = 0; i < total; i++) {
-        	
+        	System.out.println("Iteration: " + i);
         	JSONObject jsonCommit = GithubConnector.readJsonFromUrl(object.getJSONObject(i).getString("url"));
         	Date commitDate = new SimpleDateFormat("yyyy-MM-dd").parse(jsonCommit.getJSONObject("commit").getJSONObject("committer").getString("date"));
         	jsonCommit.put("Version", vp.getVersionName(commitDate, projName));
@@ -100,12 +100,12 @@ public class GetAllCommits {
              
       public static void main(String[] args) throws JSONException, IOException, ParseException {
     	 
-    	  String endDate = "2014-02-02";  
-    	  String startDate = "2011-12-07";
-    	  String projName = "BOOKKEEPER";
+    	  String endDate = "2010-03-29";  
+    	  String startDate = "2006-08-26";
+    	  String projName = "OPENJPA";
     	  String organization = "apache";
     	  FileWriter file = null;
-    	  Logger logger = Logger.getLogger(GetAllCommits.class.getName());
+    	  Logger logger = Logger.getLogger(GetAllCommits.class.getName()); 
     	  GetAllCommits getCommits = new GetAllCommits(startDate,endDate);
     	  File tmpDir = new File(projName +"_Commits_Sha.JSON");
     	  if ( !tmpDir.exists()) {
@@ -136,7 +136,3 @@ public class GetAllCommits {
     	  
        }
 }
-
-
-
-    
