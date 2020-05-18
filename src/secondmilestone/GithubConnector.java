@@ -29,7 +29,7 @@ public class GithubConnector {
         uc = (HttpsURLConnection) url.openConnection();
         uc.setRequestProperty("X-Requested-With", "Curl");
         String username =  "Melissari1997";
-        String token =  "7be774adc1e222c2c6ee22318cb320ca1a232bbc";
+        String token =  "";
         String userpass = username + ":" + token;
         byte[] encodedBytes = Base64.getEncoder().encode(userpass.getBytes());
         String basicAuth = "Basic " + new String(encodedBytes);

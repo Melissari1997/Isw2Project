@@ -200,7 +200,7 @@ public class MetricsCalculator {
         			System.out.println("Numero di iterazioni per " + version + " : " + treeSha.length());
                     for ( int i = 0; i < treeSha.length(); i++) {
                    
-                    	if(totalRequests >=18500) {
+                    	if(totalRequests >=27750) {
                     		return fileRecords;
                     		//System.out.println("Sleep");
                     		//Thread.sleep(3600000);
