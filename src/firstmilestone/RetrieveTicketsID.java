@@ -20,9 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import com.opencsv.CSVWriter;
-
-import secondmilestone.GithubConnector;
-
 public class RetrieveTicketsID {
 
 	static String projName ="Mahout";
